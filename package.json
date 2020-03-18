@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "postinstall": "lerna bootstrap",
+    "start:api": "lerna run start --scope @zazukoians/hydra-fullstack-api",
+    "start:ui": "lerna run start --scope @zazukoians/hydra-fullstack-ui",
     "build": "lerna run build",
     "test": "lerna run test --stream --no-prefix"
   },

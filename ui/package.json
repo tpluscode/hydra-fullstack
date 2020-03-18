@@ -21,7 +21,7 @@
     "test:legacy": "karma start --compatibility all --coverage",
     "test:legacy:watch": "karma start --compatibility all --auto-watch=true --single-run=false",
     "test:bs": "karma start karma.bs.config.js --compatibility all --coverage",
-    "start": "webpack-dev-server --mode development",
+    "start": "webpack-dev-server --mode development --host 0.0.0.0 --disable-host-check",
     "build": "webpack --mode production"
   },
   "devDependencies": {
