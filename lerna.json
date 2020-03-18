@@ -1,0 +1,15 @@
+{
+  "packages": [
+    "ui"
+  ],
+  "command": {
+    "publish": {
+      "conventionalCommits": true
+    },
+    "version": {
+      "message": "chore: release new versions",
+      "conventionalCommits": true
+    }
+  },
+  "version": "0.0.0"
+}
