@@ -10,5 +10,8 @@ module.exports = merge(
     resolve: {
       extensions: ['.ts', '.js', '.json'],
     },
+    node: {
+      crypto: true,
+    },
   },
 )

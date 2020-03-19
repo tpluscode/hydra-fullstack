@@ -34,7 +34,9 @@
       "always-multiline"
     ],
     "@typescript-eslint/no-var-requires": "warn",
-    "@typescript-eslint/indent": ["error", 2]
+    "@typescript-eslint/indent": ["error", 2],
+    "array-callback-return": "off",
+    "class-methods-use-this": "warn"
   },
   "overrides": [
     {

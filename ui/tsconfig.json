@@ -11,6 +11,10 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "typings"
+    ]
   }
 }
