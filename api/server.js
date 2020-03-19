@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const debug = require('debug')
 const FlatMultiFileStore = require('rdf-store-fs/FlatMultiFileStore')
 const hydraBox = require('hydra-box/middleware')
@@ -28,6 +29,13 @@ async function main () {
 
   const app = express()
   app.locals.store = new ResourceStore({ quadStore: store })
+  app.use(cors({
+    exposedHeaders: [
+      'Location',
+      'Content-Type',
+      'Link'
+    ],
+  }))
   app.use(hydraBox(api, store))
   app.listen(port, '0.0.0.0')
 
