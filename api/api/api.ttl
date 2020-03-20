@@ -1,48 +1,68 @@
-@base <http://localhost:9000/api/schema/>.
+@base             <http://localhost:9000/api/schema/> .
 
-@prefix hydra: <http://www.w3.org/ns/hydra/core#>.
-@prefix code: <https://code.described.at/>.
-@prefix hydrabox: <http://hydra-box.org/schema/>.
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix xml: <http://www.w3.org/XML/1998/namespace>.
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix hydra:    <http://www.w3.org/ns/hydra/core#> .
+@prefix code:     <https://code.described.at/> .
+@prefix hydrabox: <http://hydra-box.org/schema/> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml:      <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
 
-<http://localhost:9000/api> hydra:entrypoint <http://localhost:9000/> .
+<http://localhost:9000/api>
+  a                    hydra:ApiDocumentation ;
+  hydra:entrypoint     <http://localhost:9000/> ;
+  hydra:supportedClass <App>,
+                       <Table>,
+                       <Row> .
 
-<Table> a hydra:Class;
-  hydra:supportedOperation
-    <table#get>,
-    <table#post>;
-  hydra:supportedProperty [
-    hydra:property <row>
-  ].
+<App>
+  a                        hydra:Class ;
+  hydra:supportedOperation <app#get> ;
+  hydra:supportedProperty  [ hydra:property <providers> ;
+                             hydra:title    "Providers" ]
+.
 
-<table#get> a hydra:SupportedOperation;
-  hydra:method "GET";
-  hydra:returns <Table>;
-  code:implementedBy [ a code:EcmaScript;
-    code:link <file:./table.js#get>
-  ].
+<app#get>
+  a                  hydra:SupportedOperation ;
+  hydra:method       "GET" ;
+  code:implementedBy [ a         code:EcmaScript ;
+                       code:link <file:./app.js#get> ] .
 
-<table#post> a hydra:SupportedOperation;
-  hydra:expects <Row>;
-  hydra:method "POST";
-  code:implementedBy [ a code:EcmaScript;
-    code:link <file:./table.js#post>
-  ].
+<providers>
+  a hydra:Link .
 
-<Row> a hydra:Class;
-  hydra:supportedOperation
-    <row#get>,
-    <row#put>;
-  hydra:supportedProperty [
-    hydra:property <operatorNumber>
-  ], [
-    hydra:property <registrationNumber>
-  ], [
-    hydra:property <name>
-  ].
+<Table>
+  a                        hydra:Class ;
+  hydra:supportedOperation <table#get>,
+                           <table#post> ;
+  hydra:supportedProperty  [ hydra:property <row> ] .
+
+<table#get>
+  a                  hydra:SupportedOperation ;
+  hydra:method       "GET" ;
+  hydra:returns      <Table> ;
+  code:implementedBy [ a         code:EcmaScript ;
+                       code:link <file:./table.js#get> ] .
+
+<table#post>
+  a                  hydra:SupportedOperation ;
+  hydra:expects      <Row> ;
+  hydra:method       "POST" ;
+  hydra:title        "Add row" ;
+  code:implementedBy [ a         code:EcmaScript ;
+                       code:link <file:./table.js#post> ] .
+
+<Row>
+  a                        hydra:Class ;
+  hydra:supportedOperation <row#get>,
+                           <row#put> ;
+  hydra:supportedProperty  [ hydra:property <operatorNumber> ;
+                             hydra:title    "Operator number" ],
+                           [ hydra:property <registrationNumber> ;
+                             hydra:title    "Registration number" ],
+                           [ hydra:property <name> ;
+                             hydra:title    "Name" ;
+                             hydra:required true ] .
 
 <row#get> a hydra:SupportedOperation;
   hydra:method "GET";

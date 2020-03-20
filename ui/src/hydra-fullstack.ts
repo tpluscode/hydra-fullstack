@@ -1,14 +1,16 @@
+import '@vaadin/vaadin-checkbox/vaadin-checkbox'
 import { HydraResource } from 'alcaeus/types/Resources'
 import { LitElement, html, query, property } from 'lit-element'
 import { AppShellElement } from './elements/app-shell'
 import './elements/app-shell.ts'
 import createApp, { State } from './state/app'
+import { operationMenu } from './views/scopes'
 
 type NullState<T> = {
   [P in keyof T]: Partial<T[P]>
 }
 
-const app = createApp('http://hydra-fullstack.lndo.site')
+export const app = createApp(process.env.API_ROOT)
 
 class HydraFullstackElement extends LitElement {
   @query('app-shell')
@@ -20,8 +22,21 @@ class HydraFullstackElement extends LitElement {
     menu: {},
   }
 
+  private get __pageTitle() {
+    const { entrypoint } = this.__state.core
+
+    if (entrypoint && 'title' in entrypoint) {
+      return entrypoint.title
+    }
+
+    return ''
+  }
+
   public async connectedCallback(): Promise<void> {
     super.connectedCallback()
+
+    import('./views')
+    import('./forms')
 
     const { states } = await app
 
@@ -32,11 +47,19 @@ class HydraFullstackElement extends LitElement {
 
   public render() {
     return html`
-      <app-shell base-url="http://hydra-fullstack.lndo.site"
+      <app-shell base-url="${process.env.API_ROOT}"
                 .handleResourceLoaded="${this.__setResource}"
-                .title="${this.__state.core.title || 'Please wait...'}"
+                .appTitle="${this.__state.core.title || 'Please wait...'}"
+                .title="${this.__pageTitle}"
                 .model="${this.__state}"
-                .menuItems="${this.__state.menu.items}"></app-shell>
+                .menuItems="${this.__state.menu.items}">
+
+        <lit-view slot="drawer" .value="${this.__state.core.operations}" template-scope="${operationMenu}"></lit-view>
+
+        <vaadin-tab slot="drawer">
+          <vaadin-checkbox .checked="${this.__state.core.debug}" @change="${this.debug}">Debug view</vaadin-checkbox>
+        </vaadin-tab>
+    </app-shell>
     `
   }
 
@@ -44,6 +67,11 @@ class HydraFullstackElement extends LitElement {
     const { actions } = await app
 
     actions.core.setResource(r)
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  private debug() {
+    app.then(({ actions }) => actions.core.toggleDebug())
   }
 }
 

@@ -20,6 +20,9 @@ services:
     port: 8080
     ssl: false
     command: cd ui; npm start
+    overrides:
+      environment:
+        API_ROOT: http://hydra-fullstack.lndo.site/
   fuseki:
     type: compose
     services:

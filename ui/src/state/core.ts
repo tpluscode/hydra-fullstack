@@ -2,6 +2,7 @@ import { HydraResource, IOperation } from 'alcaeus/types/Resources'
 import { Hydra } from 'alcaeus'
 import { IHydraResponse } from 'alcaeus/types/HydraResponse'
 import { rdfs } from '@tpluscode/rdf-ns-builders'
+import { Operation } from 'alcaeus/types/Resources/Operation'
 import { ServiceParams, Update } from './index'
 
 Hydra.rootSelectors = [Hydra.rootSelectors.pop() as any, ...Hydra.rootSelectors]
@@ -23,9 +24,10 @@ export interface State<T extends HydraResource | null = HydraResource | null> {
   requestRefresh?: boolean;
   isLoading: boolean;
   title?: string;
+  operations: Operation[];
 }
 
-export async function Initial(rootUri: string): Promise<State> {
+export async function Initial(rootUri?: string): Promise<State> {
   if (!rootUri) {
     throw new Error('Failed to initialize app. API_ROOT environment variable was not set')
   }
@@ -50,6 +52,7 @@ export async function Initial(rootUri: string): Promise<State> {
       invoking: false,
       opened: false,
     },
+    operations: [],
   }
 }
 
@@ -74,13 +77,48 @@ export const services = [
       },
     }),
 
+  ({ state }: ServiceParams) => {
+    const { resource } = state.core
+    if (!resource) {
+      return {}
+    }
+
+    return {
+      state: () => ({
+        ...state,
+        core: {
+          ...state.core,
+          operations: resource.findOperations(),
+        },
+      }),
+    }
+  },
+
+  ({ state, previousState }: ServiceParams) => {
+    if (state.core.resource?.id !== previousState.core.resource?.id) {
+      return {
+        state: () => ({
+          ...state,
+          core: {
+            ...state.core,
+            operationForm: {
+              ...state.core.operationForm,
+              operation: undefined,
+              opened: false,
+            },
+          },
+        }),
+      }
+    }
+
+    return {}
+  },
 ]
 
 export function Actions(update: Update<State>) {
   return {
     toggleDebug() {
       update(state => ({
-        ...state,
         debug: !state.debug,
       }))
     },
@@ -92,29 +130,53 @@ export function Actions(update: Update<State>) {
       }))
     },
     showOperationForm(operation: IOperation) {
-      update((state) => ({
-        ...state,
-        operationForm: {
-          opened: true,
-          invoking: false,
-          operation,
-          value: undefined,
-          error: undefined,
-        },
-      }))
+      update(({ operationForm }) => {
+        let { opened, value } = operationForm
+        const sameOperation = operationForm.operation?.supportedOperation.id === operation.supportedOperation.id
+
+        if (sameOperation) {
+          opened = !opened
+        } else {
+          opened = true
+          value = undefined
+        }
+
+        return ({
+          operationForm: {
+            ...operationForm,
+            opened,
+            invoking: false,
+            operation,
+            value,
+            error: undefined,
+          },
+        })
+      })
     },
     hideOperationForm() {
-      update(state => ({
-        ...state,
+      update(({ operationForm }) => {
+        if (operationForm.invoking) {
+          return { operationForm }
+        }
+
+        return ({
+          operationForm: {
+            ...operationForm,
+            opened: false,
+          },
+        })
+      })
+    },
+    setOperationValue(value: object) {
+      update(({ operationForm }) => ({
         operationForm: {
-          ...state.operationForm,
-          opened: false,
+          ...operationForm,
+          value,
         },
       }))
     },
     invokeOperation(operation: IOperation, value: object) {
       update(state => ({
-        ...state,
         operationForm: {
           ...state.operationForm,
           invoking: true,
@@ -124,44 +186,45 @@ export function Actions(update: Update<State>) {
       }))
 
       const body = JSON.stringify(value)
-      return operation
+      operation
         .invoke(body)
         .then(response => {
-          if (response.xhr.ok) {
-            update((state) => ({
-              ...state,
+          if (!response.xhr.ok) {
+            update(state => ({
               operationForm: {
                 ...state.operationForm,
-                opened: false,
+                invoking: false,
+                error: 'Request failed',
               },
             }))
-
-            if (response.root) {
-              const { root } = response
-              update(state => ({
-                ...state,
-                resource: root,
-                resourceUrlOverride: root.id,
-              }))
-            } else {
-              update(state => ({
-                ...state,
-                requestRefresh: true,
-              }))
-            }
+            return
           }
 
-          update(state => ({
-            ...state,
+          update((state) => ({
             operationForm: {
               ...state.operationForm,
-              invoking: false,
+              opened: false,
             },
           }))
+
+          if (response.root) {
+            const { root } = response
+            update(state => ({
+              operationForm: {
+                ...state.operationForm,
+                operation: undefined,
+              },
+              resource: root,
+              resourceUrlOverride: root.id,
+            }))
+          } else {
+            update(state => ({
+              requestRefresh: true,
+            }))
+          }
         })
         .catch(e => {
           update(state => ({
-            ...state,
             operationForm: {
               ...state.operationForm,
               error: e.message,
@@ -170,7 +233,6 @@ export function Actions(update: Update<State>) {
         })
         .finally(() => {
           update(state => ({
-            ...state,
             operationForm: {
               ...state.operationForm,
               invoking: false,

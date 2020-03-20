@@ -10,7 +10,6 @@ import { css, property } from 'lit-element'
 import { repeat } from 'lit-html/directives/repeat'
 import 'ld-navigation/ld-link'
 import { ResourceScope, ReflectedInHistory } from 'ld-navigation'
-import '../views'
 
 export class AppShellElement extends AlcaeusLoader(ReflectedInHistory(ResourceScope(HydrofoilShell))) {
   @property()
@@ -25,6 +24,10 @@ export class AppShellElement extends AlcaeusLoader(ReflectedInHistory(ResourceSc
     return css`:host {
       height: 100vh;
       display: block;
+    }
+
+    .content {
+      height: 100%
     }`
   }
 
@@ -35,15 +38,14 @@ export class AppShellElement extends AlcaeusLoader(ReflectedInHistory(ResourceSc
         <h2 slot="navbar">
             ${this.title}
         </h2>
-        <vaadin-tabs slot="drawer" orientation="vertical" theme="minimal" style="margin: 0 auto; flex: 1;">
+        <vaadin-tabs slot="drawer" orientation="vertical" theme="minimal" style="margin: 0; flex: 1;">
           ${this.__menu()}
         </vaadin-tabs>
 
+        <slot name="drawer" slot="drawer"></slot>
+
         <div class="content">
-          <h3>Page title</h3>
-          <p>
-              ${super.renderMain()}
-          </p>
+          ${super.renderMain()}
         </div>
       </vaadin-app-layout>`
   }

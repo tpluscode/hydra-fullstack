@@ -1,4 +1,5 @@
 const ns = require('@tpluscode/rdf-ns-builders')
+const { api } = require('./namespaces')
 
 // Generates IRIs for new resources based on the given rdf:type and parent.
 // An actual implementation could use a SPARQL query to find the next IRI.
@@ -10,10 +11,10 @@ async function generateIri (node, resource) {
     throw new Error(`no unique type found for ${node.value}`)
   }
 
-  if (type.term.equals(ns.schema.Row)) {
-    const operatorNumber = node.out(ns.schema.operatorNumber).value
+  if (type.term.equals(api.Row)) {
+    const operatorNumber = node.out(api.operatorNumber).value
 
-    return node.namedNode(`${resource.value}row/${operatorNumber}`).term
+    return node.namedNode(`${resource.value}/row/${operatorNumber}`).term
   }
 
   throw new Error(`unknown type: ${type.value}`)

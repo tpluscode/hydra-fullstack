@@ -21,7 +21,7 @@ export type Update<T> = (patch: RecursivePartial<T>) => {
 }
 */
 
-export type Update<T> = (patchFunc: (state: T) => T) => void
+export type Update<T> = (patchFunc: (state: T) => Partial<T>) => void
 
 export interface ServiceParams {
   state: State;

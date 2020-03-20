@@ -1,2 +1,4 @@
-<http://hydra-fullstack.lndo.site/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://hydra-fullstack.lndo.site/api/schema/Table> .
-<http://hydra-fullstack.lndo.site/> <http://www.w3.org/2000/01/rdf-schema#label> "Telecom Service Provider Table" .
+<http://hydra-fullstack.lndo.site/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://hydra-fullstack.lndo.site/api/schema/App> .
+<http://hydra-fullstack.lndo.site/> <http://www.w3.org/2000/01/rdf-schema#label> "Telecom Service Provider API" .
+
+<http://hydra-fullstack.lndo.site/> <http://hydra-fullstack.lndo.site/api/schema/providers> <http://hydra-fullstack.lndo.site/providers> .

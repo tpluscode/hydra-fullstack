@@ -1,6 +1,7 @@
 const Clownface = require('clownface')
 const rdf = { ...require('@rdfjs/data-model'), ...require('@rdfjs/dataset') }
 const ns = require('@tpluscode/rdf-ns-builders')
+const { api } = require('./lib/namespaces')
 const generateIri = require('./lib/generateIri')
 const rebase = require('./lib/rebase')
 const setGraph = require('./lib/setGraph')
@@ -34,14 +35,14 @@ async function post (req, res, next) {
     const rawRow = new Clownface({ dataset: rawContent }).has(ns.rdf.type)
     const rowTerm = await generateIri(rawRow, tableTerm)
 
-    if (resource.node(rowTerm).out().terms.length > 0) {
+    if (resource.node(tableTerm).has(api.line, rowTerm).terms.length > 0) {
       throw new Error(`can't update existing resource ${rowTerm.value} with POST request`)
     }
 
     const content = rebase(rawContent, rowTerm)
 
     await req.app.locals.store.write(rowTerm, content)
-    await req.app.locals.store.write(tableTerm, rdf.dataset([rdf.quad(tableTerm, ns.schema.line, rowTerm)]))
+    await req.app.locals.store.write(tableTerm, rdf.dataset([rdf.quad(tableTerm, api.line, rowTerm)]))
 
     res.status(201).set('location', rowTerm.value).end()
   } catch (err) {

@@ -16,8 +16,10 @@
     "hydra-box": "github:zazuko/hydra-box#refactoring"
   },
   "devDependencies": {
+    "@types/clownface": "^0.12.7",
     "@types/cors": "^2.8.6",
     "@types/debug": "^4.1.5",
+    "@types/rdfjs__dataset": "^1.0.0",
     "nodemon": "^2.0.2"
   },
   "repository": {
